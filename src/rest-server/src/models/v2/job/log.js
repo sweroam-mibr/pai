@@ -155,8 +155,8 @@ const getLogListFromAzureStorage = async (
   const sasQueryString = generateBlobSASQueryParameters({
     containerName: 'pai-log',
     permissions: ContainerSASPermissions.parse("r"),
-    startsOn: new Date(),
-    expiresOn: new Date(new Date().valueOf() + 1000 * 60 * 50), // 5min
+    startsOn: new Date(new Date().valueOf() - 1000 * 60 * 10),
+    expiresOn: new Date(new Date().valueOf() + 1000 * 60 * 10), // 10min
     protocol: SASProtocol.Https,
   }, sharedKeyCredential);
   for await (const blob of containerClient.listBlobsFlat({
