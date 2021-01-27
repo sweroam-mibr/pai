@@ -16,11 +16,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const axios = require('axios');
+const {
+  BlobServiceClient,
+  StorageSharedKeyCredential,
+  ContainerSASPermissions,
+  generateBlobSASQueryParameters,
+  SASProtocol,
+} = require('@azure/storage-blob');
 const logger = require('@pai/config/logger');
 const task = require('@pai/models/v2/task');
 const createError = require('@pai/utils/error');
 const { encodeName } = require('@pai/models/v2/utils/name');
 
+const LOG_SERVER = process.env.LOG_SERVER
 const LOG_MANAGER_PORT = process.env.LOG_MANAGER_PORT;
 const WEBPORTAL_URL = process.env.WEBPORTAL_URL;
 
@@ -36,13 +44,13 @@ const loginLogManager = async (nodeIp, username, password) => {
   });
 };
 
-const getLogListFromLogManager = async (
+getLogListFromLogManager = async (
   frameworkName,
   jobAttemptId,
   taskRoleName,
   taskIndex,
   taskAttemptId,
-  tailMode,
+  tailMode
 ) => {
   const adminName = process.env.LOG_MANAGER_ADMIN_NAME;
   const adminPassword = process.env.LOG_MANAGER_ADMIN_PASSWORD;
@@ -103,8 +111,110 @@ const getLogListFromLogManager = async (
   }
 
   return ret;
+}
+
+const getLogListFromAzureStorage = async (
+  frameworkName,
+  jobAttemptId,
+  taskRoleName,
+  taskIndex,
+  taskAttemptId,
+  tailMode,
+) => {
+  const taskDetail = await task.get(
+    frameworkName,
+    Number(jobAttemptId),
+    taskRoleName,
+    Number(taskIndex),
+  );
+  const NoTaskLogErr = createError(
+    'Not Found',
+    'NoTaskLogError',
+    `Log of task is not found.`,
+  );
+  const taskStatus = taskDetail.data.attempts.find(
+    (attempt) => attempt.attemptId === Number(taskAttemptId),
+  );
+  if (!taskStatus || !taskStatus.containerIp) {
+    logger.error(`Failed to find task to retrive log or task not started`);
+    throw NoTaskLogErr;
+  }
+
+  const podUid = taskStatus.containerId;
+
+  const account = process.env.AZURE_STORAGE_ACCOUNT;
+  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+  const sharedKeyCredential = new StorageSharedKeyCredential(
+    account,
+    accountKey,
+  );
+  const blobServiceClient = new BlobServiceClient(`https://${account}.blob.core.windows.net`, sharedKeyCredential);
+  const containerClient = blobServiceClient.getContainerClient('pai-log');
+  const ret = { locations: [] };
+
+  const sasQueryString = generateBlobSASQueryParameters({
+    containerName: 'pai-log',
+    permissions: ContainerSASPermissions.parse("r"),
+    startsOn: new Date(),
+    expiresOn: new Date(new Date().valueOf() + 1000 * 60 * 50), // 5min
+    protocol: SASProtocol.Https,
+  }, sharedKeyCredential);
+  for await (const blob of containerClient.listBlobsFlat({
+    prefix: `job-${podUid}`,
+  })) {
+    if (blob.name.endsWith('stdout.log')) {
+      if (tailMode !== 'true') {
+        ret.locations.push({
+          name: 'stdout',
+          uri: `${containerClient.url}/${blob.name}?${sasQueryString}`,
+        });
+      } else {
+        ret.locations.push({
+          name: 'stdout',
+          uri: `${WEBPORTAL_URL}/rest-server/api/v2/tail-logs/${blob.name}?${sasQueryString}`
+        })
+      }
+    }
+  }
+  return ret;
+};
+
+const getLogListFromLogServer = async (
+  frameworkName,
+  jobAttemptId,
+  taskRoleName,
+  taskIndex,
+  taskAttemptId,
+  tailMode
+) => {
+  if (LOG_SERVER.toLowerCase() === 'log_manager') {
+    return await getLogListFromLogManager(
+      frameworkName,
+      jobAttemptId,
+      taskRoleName,
+      taskIndex,
+      taskAttemptId,
+      tailMode,
+    );
+  }
+  if (LOG_SERVER.toLocaleLowerCase() === 'azure_storage') {
+    return await getLogListFromAzureStorage(
+      frameworkName,
+      jobAttemptId,
+      taskRoleName,
+      taskIndex,
+      taskAttemptId,
+      tailMode,
+    );
+  }
+  // This should named to another name, no supported log server
+  throw createError(
+    'Not Found',
+    'NoTaskLogError',
+    `Log of task is not found.`,
+  );
 };
 
 module.exports = {
-  getLogListFromLogManager,
+  getLogListFromLogServer,
 };

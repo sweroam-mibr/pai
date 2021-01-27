@@ -479,7 +479,7 @@ const generateTaskRole = (
                 config.prerequisites.dockerimage[
                   config.taskRoles[taskRole].dockerImage
                 ].uri,
-              command: ['/usr/local/pai/runtime'],
+              command: CLOUD_PROVIDER === 'xcloud' ? [config.taskRoles[taskRole].entrypoint]: ['/usr/local/pai/runtime'],
               resources: {
                 limits: {
                   cpu: config.taskRoles[taskRole].resourcePerInstance.cpu,
