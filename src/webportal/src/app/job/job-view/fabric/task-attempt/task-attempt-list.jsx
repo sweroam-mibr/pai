@@ -93,30 +93,45 @@ PortTooltipContent.propTypes = {
   ports: PropTypes.object,
 };
 
-const LogDialogContent = ({ urlLists }) => {
-  const lists = [];
-  for (const p of urlLists) {
-    lists.push(p);
-  }
-  if (lists.length === 0) {
+const LogDialogContent = ({ urls, logListUrl }) => {
+  if (isEmpty(urls)) {
     return <Stack>No log file generated or log files be rotated</Stack>;
   }
-  const urlpairs = lists.map((lists, index) => (
-    <Stack key={`log-list-${index}`}>
-      <Link
-        href={lists.uri}
-        target='_blank'
-        styles={{ root: [FontClassNames.mediumPlus] }}
-      >
-        <Icon iconName='TextDocument'></Icon> {lists.name}
-      </Link>
-    </Stack>
-  ));
-  return urlpairs;
+
+  const urlPairs = [];
+  for (const [key] of Object.entries(urls)) {
+    urlPairs.push(
+      <Stack key={`log-list-${key}`}>
+        <Link
+          styles={{ root: [FontClassNames.mediumPlus] }}
+          onClick={() => {
+            getContainerLogList(logListUrl)
+              .then(({ fullLogUrls, _ }) => {
+                const logUrl = fullLogUrls.locations.find(
+                  url => url.name === key,
+                );
+                if (!logUrl || !logUrl.uri) {
+                  throw new Error('Failed to get log url');
+                }
+                location.href = logUrl.uri;
+              })
+              .catch(err => {
+                alert('Error occur, please try again. err: ' + err);
+              });
+          }}
+        >
+          <Icon iconName='TextDocument'></Icon>{' '}
+          {key.toLowerCase() === 'all' ? 'stdout+stderr' : key}
+        </Link>
+      </Stack>,
+    );
+  }
+  return urlPairs;
 };
 
 LogDialogContent.propTypes = {
-  urlLists: PropTypes.array,
+  urlLists: PropTypes.object,
+  logListUrl: PropTypes.string,
 };
 
 export default class TaskAttemptList extends React.Component {
@@ -223,10 +238,17 @@ export default class TaskAttemptList extends React.Component {
       .then(({ fullLogUrls, _ }) => {
         this.setState({
           hideAllLogsDialog: !hideAllLogsDialog,
-          fullLogUrls: fullLogUrls,
+          fullLogUrls: this.convertObjectFormat(fullLogUrls),
+          logListUrl: logListUrl,
         });
       })
-      .catch(() => this.setState({ hideAllLogsDialog: !hideAllLogsDialog }));
+      .catch(() =>
+        this.setState({
+          hideAllLogsDialog: !hideAllLogsDialog,
+          logListUrl: null,
+          fullLogUrls: {},
+        }),
+      );
   }
 
   showContainerTailLog(logListUrl, logType) {
@@ -403,6 +425,7 @@ export default class TaskAttemptList extends React.Component {
       items,
       hideAllLogsDialog,
       fullLogUrls,
+      logListUrl,
     } = this.state;
     return (
       <div>
@@ -432,9 +455,7 @@ export default class TaskAttemptList extends React.Component {
         >
           <Stack gap='m'>
             <Text variant='xLarge'>All Logs:</Text>
-            <LogDialogContent
-              urlLists={!isNil(fullLogUrls) ? fullLogUrls.locations : []}
-            />
+            <LogDialogContent urls={fullLogUrls} logListUrl={logListUrl} />
           </Stack>
           <DialogFooter>
             <PrimaryButton

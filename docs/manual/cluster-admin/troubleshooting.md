@@ -58,6 +58,24 @@ Solutions:
   2. Check the docker cache. The docker may use too many disk space for caching, it's worth to have a check.
   3. Check PAI log folder size. The path is `/var/log/pai`.
 
+### NodeGpuCountChanged Alert
+
+This is an alert from alert manager and is used to monitor the GPU count of each node.
+This alert will be triggered when the GPU count detected is different from the GPU count specified in `layout.yaml`.
+
+If you find that the real GPU count is correct but the alerts still keep being fired, it's possibly caused by the wrong specification in `layout.yaml`.
+
+Solutions:
+
+1. Enter your dev box container, check the GPU count specified in `<config-dir>/layout.yaml`, modify the GPU count accordingly;
+2. Push the modified layout and restart related service:
+
+```bash
+/pai/paictl.py service stop -n cluster-configuration job-exporter
+/pai/paictl.py config push -p <config-dir> -m service
+/pai/paictl.py service start -n cluster-configuration job-exporter
+```
+
 ### NVIDIA GPU is Not Detected
 
 If you cannot use GPU in your job, please check the following items on the corresponding worker node:
@@ -75,6 +93,16 @@ After the problem is resolved, you can uncordon the node manually with the follo
 ```bash
 kubectl uncordon <node name>
 ```
+
+### NodeGpuLowPerfState
+This is a kind of alert from alert manager.
+It means the nvidia cards from related node downgrade into low peroformance state unexpectedly.
+To fix this, please run following commands:
+```bash
+sudo nvidia-smi -pm ENABLED -i <gpu-card-id>
+sudo nvidia-smi -ac <gpu-supported-memory-clock>,<gpu-supported-clock> -i <gpu-card-id>
+```
+You can get the supported clock by `sudo nvidia-smi -q -d SUPPORTED_CLOCKS`
 
 ### Cannot See Utilization Information.
 

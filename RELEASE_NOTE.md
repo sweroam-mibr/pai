@@ -1,5 +1,73 @@
 # OpenPAI Release Note
 
+## Jan 2021 (version 1.5.0)
+
+- Improve Web Portal Experience 
+  - Fix Home page overlap issue #5213 #5180
+  - Add filter, search box and export csv button in task detail list #5175
+  - Create a new page for yaml editor #5172
+
+- Marketplace related update
+  - Please see https://github.com/microsoft/openpaimarketplace/issues/152 for more details
+
+- Support different types of computing hardware #5138 
+
+- Deployment process refinement 
+  - `master.csv` + `worker.csv` -> `layout.yaml` 
+  - move `config.yaml`, `layout.yaml` under quick-start folder, remove all the argument parse logic
+  - Add support for cpu-only worker installation 
+  - Add support for heterogeneous workers
+  - Unify version requirements: pai version, pai image tag
+  - Set default value in config files
+  - Generate hiveD config with `layout.yaml` #5179 
+  - Check layout before installing k8s #5184 #5181
+  - Config folder structure arrangement
+  - Refine installation logs
+  - Add skip service list argument #5193
+
+- Log manager
+  - Change get logs api return code #5125
+
+## Dec 2020 (version 1.4.1)
+
+- Marketplace
+  - Fix initializing blob data issue (#5189)
+- Log Collection
+    - Fix getting wrong log for retried task & frontend crash issue (#5190)
+
+## Dec 2020 (version 1.4.0)
+
+- multi-cluster (https://github.com/microsoft/pai/issues/4929)
+  - Support job transfer (#5082, #5088)
+- Autoscaler 
+  - Update docs for Cluster Autoscaler on AKS Engine (#5057)
+- Log Collection (https://github.com/microsoft/pai/issues/4992)
+    - Rest API
+    - Webportal
+- Https configuration document (#5076, #5078)
+- Marketplace (https://github.com/microsoft/openpaimarketplace/issues/73)
+  - Data
+    - Move NFS to Azure Blob as backend
+    - Upload Job output to Azure Blob
+    - Download data from azure blob to local
+    - Use Azure storage SDK for privacy
+    - Refactor data use logic after change storage to blob
+    - Update project development doc and manual
+  - Service Deployment
+    - Start Local Rest Server
+    - Deployed Rest Server in PAI
+    - Start database and save items into it
+    - Register in PAI pylon (#5066)
+    - Add azure storage to service configuration (#5104)
+- Web Portal
+  - Fix stop job button issue #5079
+- Admin Experience
+  - Prometheus alert rules update (#5021)
+  - Refine deployment process (#5077, #5085) 
+- Others
+  - Fix `updateUserGroupList` API issue (#5121) 
+  - Fix hived config issue caused by k8s coreDNS deployment (#5071)
+
 ## Nov 2020 (version 1.3.0)
 
 - Marketplace

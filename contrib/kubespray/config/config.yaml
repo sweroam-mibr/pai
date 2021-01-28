@@ -1,9 +1,13 @@
 user: forexample
 password: forexample
-branch_name: <% latest-release %>
-docker_image_tag: <% latest-release %>
+docker_image_tag: v1.5.0
 
 # Optional
+
+#######################################################################
+#                    OpenPAI Customized Settings                      #
+#######################################################################
+# enable_hived_scheduler: true
 
 #############################################
 # Ansible-playbooks' inventory hosts' vars. #
@@ -28,15 +32,9 @@ docker_image_tag: <% latest-release %>
 
 ###########################################################################################
 #                         Pre-check setting                                               #
-# By default, we assume your gpu environment is nvidia. So your runtime should be nvidia. #
-# If you are using AMD or other environment, you should modify it.                        #
 ###########################################################################################
-# worker_default_docker_runtime: nvidia
 # docker_check: true
-
 # resource_check: true
-
-# gpu_type: nvidia
 
 ########################################################################################
 # Advanced docker configuration. If you are not familiar with them, don't change them. #
@@ -74,7 +72,7 @@ docker_image_tag: <% latest-release %>
 # openpai_kube_network_plugin: calico
 
 # openpai_kubespray_extra_var:
-#   kay: value
+#   key: value
 #   key: value
 
 #######################################################################
