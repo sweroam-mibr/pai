@@ -22,8 +22,8 @@ const getTailLog = asyncHandler (async (req, res) => {
   const blobClient = containerClient.getBlobClient(logName);
   let properies;
   properies = await blobClient.getProperties();
-  const offset = properies.contentLength - 16 * 102 & 1024 < 0 ? 0 : properies.contentLength - 16 * 102 & 1024;
-  const buffer = await blobClient.downloadToBuffer(offset, properies.contentLength);
+  const offset = properies.contentLength - 16 * 1024 * 1024 < 0 ? 0 : properies.contentLength - 16 * 1024 * 1024;
+  const buffer = await blobClient.downloadToBuffer(offset, properies.contentLength - offset);
   res.status(206).send(buffer);
 });
 
