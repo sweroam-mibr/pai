@@ -60,13 +60,13 @@ const eventHandler = (eventType, apiObject) => {
 const informer = getFrameworkInformer();
 
 informer.on('add', apiObject => {
-  eventHandler('ADDED', apiObject);
+  // eventHandler('ADDED', apiObject);
 });
 informer.on('update', apiObject => {
-  eventHandler('MODIFED', apiObject);
+  // eventHandler('MODIFED', apiObject);
 });
 informer.on('delete', apiObject => {
-  eventHandler('DELETED', apiObject);
+  // eventHandler('DELETED', apiObject);
 });
 informer.on('error', err => {
   // If any error happens, the process should exit, and let Kubernetes restart it.
