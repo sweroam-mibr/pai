@@ -12,6 +12,8 @@ const { getFrameworkInformer } = require('@dbc/common/k8s');
 const { alwaysRetryDecorator } = require('@dbc/common/util');
 const config = require('@dbc/watcher/framework/config');
 
+const BlackHoleStream = require("black-hole-stream");
+
 // Here, we use AsyncLock to control the concurrency of frameworks with the same name;
 // e.g. If framework A has event1, event2, and event3, we use AsyncLock
 // to ensure they will be delivered to write-merger in order.
@@ -30,7 +32,7 @@ async function synchronizeFramework(eventType, apiObject) {
       timeout: config.writeMergerConnectionTimeoutSecond * 1000,
     },
   );
-  await res.text()
+  res.body.pipe(new BlackHoleStream())
   if (!res.ok) {
     throw new Error(`Request returns a ${res.status} error.`);
   }
