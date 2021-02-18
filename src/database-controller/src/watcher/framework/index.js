@@ -103,7 +103,7 @@ async function timePeriod(ms) {
   });
 }
 
-async function postIt(url, str) {
+async function postIt(str) {
   const res = await fetch(
     `${config.writeMergerUrl}/api/v1/watchEvents/UNKNOWN`,
     {
@@ -122,7 +122,7 @@ async function doIt() {
   while(true) {
     for (let i = 0; i < concurrentRequest; i++){
       console.log(i)
-      postIt().catch(err => logger.error(err))
+      postIt(getLargeString(10)).catch(err => logger.error(err))
     }
     await timePeriod(1000 * intervalSeconds)
   }
