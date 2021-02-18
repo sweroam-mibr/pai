@@ -30,6 +30,7 @@ async function synchronizeFramework(eventType, apiObject) {
       timeout: config.writeMergerConnectionTimeoutSecond * 1000,
     },
   );
+  await res.text()
   if (!res.ok) {
     throw new Error(`Request returns a ${res.status} error.`);
   }
@@ -60,26 +61,26 @@ const eventHandler = (eventType, apiObject) => {
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
 
-// const informer = getFrameworkInformer(1800);
+const informer = getFrameworkInformer(1800);
 
-// informer.on('add', apiObject => {
-//   eventHandler('ADDED', apiObject);
-// });
-// informer.on('update', apiObject => {
-//   eventHandler('MODIFED', apiObject);
-// });
-// informer.on('delete', apiObject => {
-//   eventHandler('DELETED', apiObject);
-// });
-// informer.on('error', err => {
-//   // If any error happens, the process should exit, and let Kubernetes restart it.
-//   logger.error(err, function() {
-//     setTimeout(() => {
-//       informer.start();
-//     }, 5000);
-//   });
-// });
-// informer.start();
+informer.on('add', apiObject => {
+  eventHandler('ADDED', apiObject);
+});
+informer.on('update', apiObject => {
+  eventHandler('MODIFED', apiObject);
+});
+informer.on('delete', apiObject => {
+  eventHandler('DELETED', apiObject);
+});
+informer.on('error', err => {
+  // If any error happens, the process should exit, and let Kubernetes restart it.
+  logger.error(err, function() {
+    setTimeout(() => {
+      informer.start();
+    }, 5000);
+  });
+});
+informer.start();
 
 
 function makeid(length) {
@@ -93,44 +94,44 @@ function makeid(length) {
 }
 
 
-function getLargeString(sizeMB) {
-  return makeid(sizeMB * 1024 * 1024)
-}
+// function getLargeString(sizeMB) {
+//   return makeid(sizeMB * 1024 * 1024)
+// }
 
-async function timePeriod(ms) {
-  await new Promise((resolve, reject) => {
-    setTimeout(() => resolve(), ms);
-  });
-}
+// async function timePeriod(ms) {
+//   await new Promise((resolve, reject) => {
+//     setTimeout(() => resolve(), ms);
+//   });
+// }
 
-async function postIt(str) {
-  const res = await fetch(
-    `${config.writeMergerUrl}/api/v1/watchEvents/UNKNOWN`,
-    {
-      method: 'POST',
-      body: JSON.stringify({str: str}),
-      headers: { 'Content-Type': 'application/json' },
-      timeout: config.writeMergerConnectionTimeoutSecond * 1000,
-    },
-  );
-}
+// async function postIt(str) {
+//   const res = await fetch(
+//     `${config.writeMergerUrl}/api/v1/watchEvents/UNKNOWN`,
+//     {
+//       method: 'POST',
+//       body: JSON.stringify({str: str}),
+//       headers: { 'Content-Type': 'application/json' },
+//       timeout: config.writeMergerConnectionTimeoutSecond * 1000,
+//     },
+//   );
+// }
 
-intervalSeconds = 10
-concurrentRequest = 30
+// intervalSeconds = 10
+// concurrentRequest = 30
 
-async function doIt() {
-  while(true) {
-    str = getLargeString(10)
-    for (let i = 0; i < concurrentRequest; i++){
-      console.log(i)
-      postIt(str).catch(err => logger.error(err))
-    }
-    await timePeriod(1000 * intervalSeconds)
-  }
-}
+// async function doIt() {
+//   while(true) {
+//     str = getLargeString(10)
+//     for (let i = 0; i < concurrentRequest; i++){
+//       console.log(i)
+//       postIt(str).catch(err => logger.error(err))
+//     }
+//     await timePeriod(1000 * intervalSeconds)
+//   }
+// }
 
 
-doIt()
+// doIt()
 
 
 
