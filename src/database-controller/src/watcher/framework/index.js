@@ -78,17 +78,16 @@ const eventHandler = (eventType, apiObject) => {
 
 
 function makeid(length) {
-   let result           = '';
+   let result           = [];
    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
    let charactersLength = characters.length;
    for (let  i = 0; i < length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
    }
-   return result;
+   return result.join('');
 }
 
 const getLargeString = (sizeMB) => {
-  // return 'x'.repeat(sizeMB * 1024 * 1024)
   return makeid(sizeMB * 1024 * 1024)
 }
 
@@ -107,21 +106,27 @@ async function timePeriod(ms) {
 const test = async (round) => {
   const t = []
   for (let i = 0; i < round; i++){
-    t.push(getLargeString(10)); console.log(i);
-    // const str = getLargeString(10)
-    // lock.acquire(makeid(1), () => {
-    //   return queue.add(
-    //     alwaysRetryDecorator(
-    //       () => fakeSync(str),
-    //       `fake sync ok length = ${str.length}`,
-    //     ),
-    //   );
-    // });
+
+    console.log(i)
+
+    // t.push(getLargeString(10));
+
+    const str = getLargeString(10)
+    lock.acquire(makeid(1), () => {
+      return queue.add(
+        alwaysRetryDecorator(
+          () => fakeSync(str),
+          `fake sync ok length = ${str.length}`,
+        ),
+      );
+    });
+
   }
+  // setTimeout(() => {global.gc(); console.log('gc finished.')}, 20000);
   await timePeriod(1000000000)
 }
 
 
-test(1000)
+test(100)
 
 
