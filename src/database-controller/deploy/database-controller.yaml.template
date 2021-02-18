@@ -157,7 +157,7 @@ spec:
         # Max rpc concurrency for framework watcher
         - name: MAX_RPC_CONCURRENCY
           value: "{{ cluster_cfg['database-controller']['framework-watcher-max-rpc-concurrency'] }}"
-        command: ["node", "--max-old-space-size={{ cluster_cfg['database-controller']['framework-watcher-max-heap-mb'] }}", "watcher/framework/index.js"]
+        command: ["node", "--max-old-space-size={{ cluster_cfg['database-controller']['framework-watcher-max-heap-mb'] }}", "--expose-gc", "watcher/framework/index.js"]
       - name: cluster-event-watcher
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}database-controller:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
