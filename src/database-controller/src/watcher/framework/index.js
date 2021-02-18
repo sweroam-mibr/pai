@@ -103,16 +103,18 @@ async function timePeriod(ms) {
 
 
 const test = async (round) => {
+  const t = []
   for (let i = 0; i < round; i++){
-    const str = getLargeString(10)
-    lock.acquire(makeid(1), () => {
-      return queue.add(
-        alwaysRetryDecorator(
-          () => fakeSync(str),
-          `fake sync ok length = ${str.length}`,
-        ),
-      );
-    });
+    t.push(getLargeString(10)); console.log(i);
+    // const str = getLargeString(10)
+    // lock.acquire(makeid(1), () => {
+    //   return queue.add(
+    //     alwaysRetryDecorator(
+    //       () => fakeSync(str),
+    //       `fake sync ok length = ${str.length}`,
+    //     ),
+    //   );
+    // });
   }
   await timePeriod(1000000000)
 }
