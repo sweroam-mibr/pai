@@ -57,21 +57,67 @@ const eventHandler = (eventType, apiObject) => {
   });
 };
 
-const informer = getFrameworkInformer();
+// const informer = getFrameworkInformer();
 
-informer.on('add', apiObject => {
-  // eventHandler('ADDED', apiObject);
-});
-informer.on('update', apiObject => {
-  // eventHandler('MODIFED', apiObject);
-});
-informer.on('delete', apiObject => {
-  // eventHandler('DELETED', apiObject);
-});
-informer.on('error', err => {
-  // If any error happens, the process should exit, and let Kubernetes restart it.
-  logger.error(err, function() {
-    process.exit(1);
+// informer.on('add', apiObject => {
+//   eventHandler('ADDED', apiObject);
+// });
+// informer.on('update', apiObject => {
+//   eventHandler('MODIFED', apiObject);
+// });
+// informer.on('delete', apiObject => {
+//   eventHandler('DELETED', apiObject);
+// });
+// informer.on('error', err => {
+//   // If any error happens, the process should exit, and let Kubernetes restart it.
+//   logger.error(err, function() {
+//     process.exit(1);
+//   });
+// });
+// informer.start();
+
+const getLargeString = (sizeMB) => {
+  return 'x'.repeat(sizeMB * 1024 * 1024)
+}
+
+function makeid(length) {
+   let result           = '';
+   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   let charactersLength = characters.length;
+   for (let  i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+async function fakeSync(str) {
+  str = str + 'x'
+  return
+}
+
+async function timePeriod(ms) {
+  await new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), ms);
   });
-});
-informer.start();
+}
+
+
+const test = async (round) => {
+  for (let i = 0; i < round; i++){
+    const str = getLargeString(10)
+    lock.acquire(makeid(1), () => {
+      return queue.add(
+        alwaysRetryDecorator(
+          () => fakeSync(str),
+          `fake sync ok length = ${str.length}`,
+        ),
+      );
+    });
+  }
+  await timePeriod(1000000000)
+}
+
+
+test(1000)
+
+
