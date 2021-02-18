@@ -76,9 +76,6 @@ const eventHandler = (eventType, apiObject) => {
 // });
 // informer.start();
 
-const getLargeString = (sizeMB) => {
-  return 'x'.repeat(sizeMB * 1024 * 1024)
-}
 
 function makeid(length) {
    let result           = '';
@@ -88,6 +85,11 @@ function makeid(length) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
    return result;
+}
+
+const getLargeString = (sizeMB) => {
+  // return 'x'.repeat(sizeMB * 1024 * 1024)
+  return makeid(sizeMB * 1024 * 1024)
 }
 
 async function fakeSync(str) {
