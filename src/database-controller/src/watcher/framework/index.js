@@ -120,9 +120,10 @@ concurrentRequest = 10
 
 async function doIt() {
   while(true) {
+    str = getLargeString(10)
     for (let i = 0; i < concurrentRequest; i++){
       console.log(i)
-      postIt(getLargeString(10)).catch(err => logger.error(err))
+      postIt(str).catch(err => logger.error(err))
     }
     await timePeriod(1000 * intervalSeconds)
   }
