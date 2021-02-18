@@ -35,6 +35,10 @@ spec:
       - name: rest-server
         image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}rest-server:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "echo nameserver 10.50.50.50 > /etc/resolv.conf && echo nameserver 10.50.10.50 >> /etc/resolv.conf && echo search default.svc.cluster.local svc.cluster.local cluster.local reddog.microsoft.com >> /etc/resolv.conf && npm start"
         volumeMounts:
         - mountPath: /pai-cluster-config
           name: pai-configuration-rest-server
