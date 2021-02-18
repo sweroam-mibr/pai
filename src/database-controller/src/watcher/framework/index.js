@@ -55,11 +55,7 @@ const eventHandler = (eventType, apiObject) => {
   //     ),
   //   );
   // });
-  lock.acquire(apiObject.metadata.name, () => {
-    return queue.add(
-        () => synchronizeFramework(eventType, apiObject),
-      )
-  });
+  lock.acquire(apiObject.metadata.name, () => {return synchronizeFramework(eventType, apiObject)});
 };
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
