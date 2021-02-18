@@ -133,6 +133,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
       grouplist: grouplist,
       extension: {},
     };
+    console.log('in createUserIfUserNotExist, prepare to create user')
     await userModel.createUser(username, userValue);
     req.updateResult = true;
     next();

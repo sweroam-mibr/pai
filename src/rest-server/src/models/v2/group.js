@@ -196,6 +196,7 @@ const getUserGrouplistFromExternal = async (username, data = {}) => {
   const groupAdapter = adapter.getStorageObject(adapterType);
   let response = [];
   let config = {};
+  console.log(`in getUserGrouplistFromExternal, adapter type: ${adapterType}`)
   if (adapterType === 'winbind') {
     config = groupAdapter.initConfig(authConfig.groupConfig.winbindServerUrl);
   } else if (adapterType === 'ms-graph') {

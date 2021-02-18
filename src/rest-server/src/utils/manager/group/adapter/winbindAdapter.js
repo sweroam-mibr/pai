@@ -29,6 +29,7 @@ function initConfig(winbindServerUrl) {
 
 async function getUserGroupList(username, config) {
   const request = axios.create(config.requestConfig);
+  console.log(`in getUserGroupList, prepare to get GetUserId?userName=${username}`)
   const response = await request.get(`GetUserId?userName=${username}`, {
     headers: {
       Accept: 'application/json',
