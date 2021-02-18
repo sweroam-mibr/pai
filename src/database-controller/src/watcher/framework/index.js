@@ -60,7 +60,7 @@ const eventHandler = (eventType, apiObject) => {
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
 
-const informer = getFrameworkInformer();
+const informer = getFrameworkInformer(1800);
 
 informer.on('add', apiObject => {
   eventHandler('ADDED', apiObject);
@@ -74,7 +74,9 @@ informer.on('delete', apiObject => {
 informer.on('error', err => {
   // If any error happens, the process should exit, and let Kubernetes restart it.
   logger.error(err, function() {
-    process.exit(1);
+    setTimeout(() => {
+      informer.start();
+    }, 5000);
   });
 });
 informer.start();
