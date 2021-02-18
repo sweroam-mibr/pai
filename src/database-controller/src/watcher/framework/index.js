@@ -116,7 +116,7 @@ async function postIt(str) {
 }
 
 intervalSeconds = 10
-concurrentRequest = 10
+concurrentRequest = 30
 
 async function doIt() {
   while(true) {
