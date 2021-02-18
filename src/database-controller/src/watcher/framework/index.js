@@ -115,12 +115,12 @@ async function postIt(url, str) {
   );
 }
 
-intervalSeconds = 1
+intervalSeconds = 10
 concurrentRequest = 10
 
 async function doIt() {
   while(true) {
-    for (let i = 0; i < concurrency; i++){
+    for (let i = 0; i < concurrentRequest; i++){
       console.log(i)
       postIt().catch(err => logger.error(err))
     }
