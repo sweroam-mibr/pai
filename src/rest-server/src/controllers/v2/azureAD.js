@@ -74,7 +74,9 @@ const requestTokenWithCode = async (req, res, next) => {
       grant_type: grantType,
       client_secret: clientSecret,
     };
+    console.log(`in requestTokenWithCode, prepare to post ${requestUrl}`)
     const response = await axios.post(requestUrl, querystring.stringify(data));
+    console.log(`in requestTokenWithCode, post ok`)
     req.undecodedIDToken = response.data.id_token;
     req.IDToken = jwt.decode(response.data.id_token);
     req.undecodedAccessToken = response.data.access_token;
@@ -92,6 +94,7 @@ const requestTokenWithCode = async (req, res, next) => {
 
 const parseTokenData = async (req, res, next) => {
   try {
+    console.log(`in parseTokenData`)
     const email = req.accessToken.upn
       ? req.accessToken.upn
       : req.accessToken.email

@@ -72,6 +72,7 @@ const get = async (req, res, next) => {
  */
 const getAAD = async (req, res, next) => {
   try {
+    console.log('in get aad')
     const username = req.username;
     const userInfo = await userModel.getUser(username);
     const admin = await userModel.checkAdmin(username);

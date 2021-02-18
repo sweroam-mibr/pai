@@ -98,6 +98,7 @@ const getAllUser = async (req, res, next) => {
 // OIDC
 const createUserIfUserNotExist = async (req, res, next) => {
   try {
+    console.log('in createUserIfUserNotExist')
     const userData = req.userData;
     const username = userData.username;
     let grouplist = [];
@@ -147,6 +148,7 @@ const createUserIfUserNotExist = async (req, res, next) => {
 
 const updateUserGroupListFromExternal = async (req, res, next) => {
   try {
+    console.log('in updateUserGroupListFromExternal')
     if (!req.updateResult) {
       const username = req.userData.username;
       const userInfo = await userModel.getUser(username);
