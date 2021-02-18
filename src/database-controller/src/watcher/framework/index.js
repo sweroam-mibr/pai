@@ -60,23 +60,77 @@ const eventHandler = (eventType, apiObject) => {
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
 
-const informer = getFrameworkInformer(1800);
+// const informer = getFrameworkInformer(1800);
 
-informer.on('add', apiObject => {
-  eventHandler('ADDED', apiObject);
-});
-informer.on('update', apiObject => {
-  eventHandler('MODIFED', apiObject);
-});
-informer.on('delete', apiObject => {
-  eventHandler('DELETED', apiObject);
-});
-informer.on('error', err => {
-  // If any error happens, the process should exit, and let Kubernetes restart it.
-  logger.error(err, function() {
-    setTimeout(() => {
-      informer.start();
-    }, 5000);
+// informer.on('add', apiObject => {
+//   eventHandler('ADDED', apiObject);
+// });
+// informer.on('update', apiObject => {
+//   eventHandler('MODIFED', apiObject);
+// });
+// informer.on('delete', apiObject => {
+//   eventHandler('DELETED', apiObject);
+// });
+// informer.on('error', err => {
+//   // If any error happens, the process should exit, and let Kubernetes restart it.
+//   logger.error(err, function() {
+//     setTimeout(() => {
+//       informer.start();
+//     }, 5000);
+//   });
+// });
+// informer.start();
+
+
+function makeid(length) {
+   let result           = [];
+   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   let charactersLength = characters.length;
+   for (let i = 0; i < length; i++ ) {
+      result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
+   }
+   return result.join('');
+}
+
+
+function getLargeString(sizeMB) {
+  return makeid(sizeMB * 1024 * 1024)
+}
+
+async function timePeriod(ms) {
+  await new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), ms);
   });
-});
-informer.start();
+}
+
+async function postIt(url, str) {
+  const res = await fetch(
+    `${config.writeMergerUrl}/api/v1/watchEvents/UNKNOWN`,
+    {
+      method: 'POST',
+      body: JSON.stringify({str: str}),
+      headers: { 'Content-Type': 'application/json' },
+      timeout: config.writeMergerConnectionTimeoutSecond * 1000,
+    },
+  );
+}
+
+intervalSeconds = 1
+concurrentRequest = 10
+
+async function doIt() {
+  while(true) {
+    for (let i = 0; i < concurrency; i++){
+      console.log(i)
+      postIt().catch(err => logger.error(err))
+    }
+    await timePeriod(1000 * intervalSeconds)
+  }
+}
+
+
+
+
+
+
+
