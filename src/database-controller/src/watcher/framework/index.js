@@ -57,7 +57,7 @@ const eventHandler = (eventType, apiObject) => {
   });
 };
 
-setInterval(() => {global.gc(); logger.info('gc!')}, 20000)
+setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
 
 const informer = getFrameworkInformer();
 
