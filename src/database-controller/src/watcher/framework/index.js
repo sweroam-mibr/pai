@@ -97,9 +97,9 @@ function outputSnapshot(){
 }
 
 outputSnapshot()
-setInterval(outputSnapshot, 600 * 1000)
+setInterval(outputSnapshot, 1200 * 1000)
 
-const informer = getFrameworkInformer(300);
+const informer = getFrameworkInformer(365 * 86400);
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
 
