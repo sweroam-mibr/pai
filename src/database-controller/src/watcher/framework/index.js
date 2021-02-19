@@ -12,6 +12,8 @@ const { getFrameworkInformer } = require('@dbc/common/k8s');
 const { alwaysRetryDecorator } = require('@dbc/common/util');
 const config = require('@dbc/watcher/framework/config');
 const axios = require('axios').default;
+const profiler = require('v8-profiler-node8');
+const fs = require('fs');
 
 const BlackHoleStream = require("black-hole-stream");
 
@@ -75,9 +77,30 @@ const eventHandler = (eventType, apiObject) => {
   synchronizeFrameworkAxios(eventType, apiObject);
 };
 
-setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
+async function timePeriod(ms) {
+  await new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), ms);
+  });
+}
+
+function outputSnapshot(){
+  logger.warn('output snapshot')
+  const snapshot = profiler.takeSnapshot();
+  logger.warn('ok')
+  const d = new Date();
+  snapshot.export(function(error, result) {
+    fs.writeFileSync(`snapshot-${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}.json`, result);
+    snapshot.delete();
+  });
+}
+
+outputSnapshot()
+setInterval(outputSnapshot, 600 * 1000)
 
 const informer = getFrameworkInformer(1800);
+
+setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
+
 
 informer.on('add', apiObject => {
   eventHandler('ADDED', apiObject);
@@ -99,26 +122,25 @@ informer.on('error', err => {
 informer.start();
 
 
-function makeid(length) {
-   let result           = [];
-   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-   let charactersLength = characters.length;
-   for (let i = 0; i < length; i++ ) {
-      result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
-   }
-   return result.join('');
-}
+// function makeid(length) {
+//    let result           = [];
+//    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//    let charactersLength = characters.length;
+//    for (let i = 0; i < length; i++ ) {
+//       result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
+//    }
+//    return result.join('');
+// }
+
+
+// setInterval(outputSnapshot, 1000 * 300)
 
 
 // function getLargeString(sizeMB) {
 //   return makeid(sizeMB * 1024 * 1024)
 // }
 
-// async function timePeriod(ms) {
-//   await new Promise((resolve, reject) => {
-//     setTimeout(() => resolve(), ms);
-//   });
-// }
+
 
 // async function postIt(str) {
 //   const res = await fetch(
