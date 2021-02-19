@@ -35,7 +35,7 @@ async function synchronizeFramework(eventType, apiObject) {
       timeout: config.writeMergerConnectionTimeoutSecond * 1000,
     },
   );
-  res.body.pipe(new BlackHoleStream())
+  // res.body.pipe(new BlackHoleStream())
   if (!res.ok) {
     throw new Error(`Request returns a ${res.status} error.`);
   }
@@ -69,7 +69,7 @@ const eventHandler = (eventType, apiObject) => {
   lock.acquire(apiObject.metadata.name, () => {
     return queue.add(
       alwaysRetryDecorator(
-        () => synchronizeFrameworkAxios(eventType, apiObject),
+        () => synchronizeFramework(eventType, apiObject),
         `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
       ),
     );
