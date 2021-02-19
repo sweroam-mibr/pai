@@ -11,6 +11,7 @@ const logger = require('@dbc/common/logger');
 const { getFrameworkInformer } = require('@dbc/common/k8s');
 const { alwaysRetryDecorator } = require('@dbc/common/util');
 const config = require('@dbc/watcher/framework/config');
+const axios = require('axios').default;
 
 const BlackHoleStream = require("black-hole-stream");
 
@@ -38,6 +39,19 @@ async function synchronizeFramework(eventType, apiObject) {
   }
 }
 
+async function synchronizeFrameworkAxios(eventType, apiObject) {
+  await axios(
+    {
+      method: 'post',
+      url: `${config.writeMergerUrl}/api/v1/watchEvents/${eventType}`,
+      data: JSON.stringify(apiObject),
+      headers: { 'Content-Type': 'application/json' },
+      timeout: config.writeMergerConnectionTimeoutSecond * 1000,
+    },
+  );
+}
+
+
 const eventHandler = (eventType, apiObject) => {
   /*
     framework name-based lock + always retry
@@ -58,7 +72,7 @@ const eventHandler = (eventType, apiObject) => {
   //     ),
   //   );
   // });
-  synchronizeFramework(eventType, apiObject);
+  synchronizeFrameworkAxios(eventType, apiObject);
 };
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
