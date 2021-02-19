@@ -66,15 +66,15 @@ const eventHandler = (eventType, apiObject) => {
   logger.info(
     `Event type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state} received.`,
   );
-  // lock.acquire(apiObject.metadata.name, () => {
-  //   return queue.add(
-  //     alwaysRetryDecorator(
-  //       () => synchronizeFramework(eventType, apiObject),
-  //       `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
-  //     ),
-  //   );
-  // });
-  synchronizeFrameworkAxios(eventType, apiObject);
+  lock.acquire(apiObject.metadata.name, () => {
+    return queue.add(
+      alwaysRetryDecorator(
+        () => synchronizeFrameworkAxios(eventType, apiObject),
+        `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
+      ),
+    );
+  });
+  // synchronizeFrameworkAxios(eventType, apiObject);
 };
 
 async function timePeriod(ms) {
@@ -84,12 +84,14 @@ async function timePeriod(ms) {
 }
 
 function outputSnapshot(){
+  global.gc();
+  logger.warn('ok')
   logger.warn('output snapshot')
   const snapshot = profiler.takeSnapshot();
-  logger.warn('ok')
+  logger.warn('gc!')
   const d = new Date();
   snapshot.export(function(error, result) {
-    fs.writeFileSync(`snapshot-${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}.json`, result);
+    fs.writeFileSync(`snapshot-${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}.heapsnapshot`, result);
     snapshot.delete();
   });
 }
@@ -97,7 +99,7 @@ function outputSnapshot(){
 outputSnapshot()
 setInterval(outputSnapshot, 600 * 1000)
 
-const informer = getFrameworkInformer(1800);
+const informer = getFrameworkInformer(300);
 
 setInterval(() => {global.gc(); logger.warn('gc!')}, 20000)
 
@@ -115,6 +117,7 @@ informer.on('error', err => {
   // If any error happens, the process should exit, and let Kubernetes restart it.
   logger.error(err, function() {
     setTimeout(() => {
+
       informer.start();
     }, 5000);
   });
