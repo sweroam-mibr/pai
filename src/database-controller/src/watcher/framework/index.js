@@ -69,7 +69,7 @@ const eventHandler = (eventType, apiObject) => {
   lock.acquire(apiObject.metadata.name, () => {
     return queue.add(
       alwaysRetryDecorator(
-        () => synchronizeFramework(eventType, apiObject),
+        () => synchronizeFrameworkAxios(eventType, apiObject),
         `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
       ),
     );
