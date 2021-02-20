@@ -602,7 +602,7 @@ const generateTaskRole = (
             {
               key: 'virtual-kubelet.io/provider',
               operator: 'Equal',
-              value: 'mock',
+              value: 'xci',
               effect: 'NoSchedule'
             }
           ] : [],
