@@ -66,15 +66,15 @@ const eventHandler = (eventType, apiObject) => {
   logger.info(
     `Event type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state} received.`,
   );
-  lock.acquire(apiObject.metadata.name, () => {
-    return queue.add(
-      alwaysRetryDecorator(
-        () => synchronizeFrameworkAxios(eventType, apiObject),
-        `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
-      ),
-    );
-  });
-  // synchronizeFrameworkAxios(eventType, apiObject);
+  // lock.acquire(apiObject.metadata.name, () => {
+  //   return queue.add(
+  //     alwaysRetryDecorator(
+  //       () => synchronizeFrameworkAxios(eventType, apiObject),
+  //       `Sync to write merger type=${eventType} receivedTs=${receivedTs} framework=${apiObject.metadata.name} state=${state}`,
+  //     ),
+  //   );
+  // });
+  synchronizeFramework(eventType, apiObject);
 };
 
 async function timePeriod(ms) {
