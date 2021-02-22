@@ -57,7 +57,7 @@ const eventHandler = (eventType, apiObject) => {
   });
 };
 
-const informer = getFrameworkInformer(600);
+const informer = getFrameworkInformer(86400 * 365);
 
 informer.on('add', apiObject => {
   eventHandler('ADDED', apiObject);
