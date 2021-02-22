@@ -96,8 +96,8 @@ function outputSnapshot(){
   });
 }
 
-outputSnapshot()
-setInterval(outputSnapshot, 1200 * 1000)
+// outputSnapshot()
+// setInterval(outputSnapshot, 1200 * 1000)
 
 const informer = getFrameworkInformer(600);
 
